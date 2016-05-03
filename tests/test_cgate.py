@@ -5,6 +5,6 @@ from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
 
 from txcgate.protocol import CGate
 
-point = TCP4ClientEndpoint(reactor, "homeauto", 20024)
+point = TCP4ClientEndpoint(reactor, "homeauto", 20025)
 d = connectProtocol(point, CGate())
 reactor.run()
