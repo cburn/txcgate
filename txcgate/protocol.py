@@ -1,14 +1,46 @@
-from message import CGateVisitor, ParseError
-from twisted.protocols.basic import LineReceiver
-from sys import stdout
+from twisted.protocols.basic import LineOnlyReceiver
+from twisted.internet.protocol import Factory
+from twisted.logger import Logger
 
-class CGateProtocol(LineReceiver):
+from message import CGateVisitor, ParseError
+
+
+log = Logger(namespace='txcgate')
+
+class CGateStatusFactory(Factory):
     def __init__(self):
+        self.protocol = CGateStatusProtocol
+
+    def setMessageHandler(self, callback):
+        self._onMessage = callback
+
+class CGateStatusProtocol(LineOnlyReceiver):
+    def __init__(self, ignore_parse_errors=True):
         self.visitor = CGateVisitor()
-        self.handle = None
+        self.ignore_parse_errors = ignore_parse_errors
 
     def lineReceived(self, data):
         try:
             command = self.visitor.parse(data)
-            if self.handle: self.handle(command) 
-        except ParseError: pass
+            if self.factory._onMessage:
+                self.factory._onMessage(command)
+        except ParseError:
+            if self.ignore_parse_errors: pass
+            else: raise
+
+    def connectionMade(self):
+        log.info('Connected to cgate status port  : {remote}', remote=self.transport.getPeer())
+
+class CGateCommandProtocol(LineOnlyReceiver):
+    def __init__(self, ignore_parse_errors=True):
+        self.visitor = CGateVisitor()
+
+    def connectionMade(self):
+        log.info('Connected to cgate command port : {remote}', remote=self.transport.getPeer())
+
+    def lineReceived(self, data):
+        pass
+
+    def send(self, data):
+        command = self.visitor.parse(data)
+        self.sendLine(str(command))

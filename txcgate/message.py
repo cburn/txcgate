@@ -12,9 +12,10 @@ LEVEL_MAX = 255
 
 cgate_gammar = Grammar(r"""
     LINE                = (COMMAND / SECURITY_EVENT)? _? COMMENT?
-    COMMAND             = LIGHTING_CMD / TRIGGER_EVENT
+    COMMAND             = LIGHTING_CMD / SHORT_CMD / TRIGGER_EVENT
     SECURITY_EVENT      = "#" _ SECURITY _ SECURITY_SUB_EVENT
 
+    SHORT_CMD           = LIGHTING_SUB_CMD
     LIGHTING_CMD        = LIGHTING _ LIGHTING_SUB_CMD
     LIGHTING_SUB_CMD    = RAMP_CMD / ON_CMD / OFF_CMD
     RAMP_CMD            = RAMP _ object_identifier _ ramp_level (_ ramp_time (_ "force")?)?
@@ -89,7 +90,7 @@ cgate_gammar = Grammar(r"""
 class CGateVisitor(NodeVisitor):
     grammar = cgate_gammar
 
-    visit_COMMAND = visit_LIGHTING_SUB_CMD = visit_SECURITY_SUB_EVENT = NodeVisitor.lift_child
+    visit_COMMAND = visit_SHORT_CMD = visit_LIGHTING_SUB_CMD = visit_SECURITY_SUB_EVENT = NodeVisitor.lift_child
 
     def generic_visit(self, node, children):
         if children:

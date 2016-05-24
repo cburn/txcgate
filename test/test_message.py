@@ -30,6 +30,15 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(cmd.time, 0)
         self.assertEqual(cmd.__str__(), 'RAMP //HOME/254/56/3 255 0')
 
+    def test_short_on(self):
+        msg = 'on //HOME/254/56/3'
+        cmd = message.CGateVisitor().parse(msg)
+        self.assertIsInstance(cmd, command.On)
+        self.assertEqual(cmd.address, '//HOME/254/56/3')
+        self.assertEqual(cmd.level, 255)
+        self.assertEqual(cmd.time, 0)
+        self.assertEqual(cmd.__str__(), 'RAMP //HOME/254/56/3 255 0')
+
     def test_off(self):
         msg = 'lighting off //HOME/254/56/45  #sourceunit=6 OID=46eeae20-b6d5-1033-a7a7-bacdd30054cb'
         cmd = message.CGateVisitor().parse(msg)
