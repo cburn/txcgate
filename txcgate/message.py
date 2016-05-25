@@ -27,10 +27,10 @@ cgate_gammar = Grammar(r"""
     SECURITY_SUB_EVENT  = ZONE_SEALED_EVENT / ZONE_UNSEALED_EVENT / ARM_READY_EVENT / ARM_NOT_READY_EVENT
         / EXIT_DELAY_STARTED_EVENT / ENTRY_DELAY_STARTED_EVENT / SYSTEM_ARM_EVENT
 
-    ZONE_SEALED_EVENT   = ZONE_SEALED _ zone_number
-    ZONE_UNSEALED_EVENT = ZONE_UNSEALED _ zone_number
+    ZONE_SEALED_EVENT   = ZONE_SEALED _ group_address
+    ZONE_UNSEALED_EVENT = ZONE_UNSEALED _ group_address
     ARM_READY_EVENT     = ARM_READY _ application_address
-    ARM_NOT_READY_EVENT         = ARM_NOT_READY _ zone_number
+    ARM_NOT_READY_EVENT         = ARM_NOT_READY _ group_address
     EXIT_DELAY_STARTED_EVENT    = EXIT_DELAY_STARTED _ application_address
     ENTRY_DELAY_STARTED_EVENT   = ENTRY_DELAY_STARTED _ application_address
     SYSTEM_ARM_EVENT    = SYSTEM_ARM _ application_address _ arm_type
@@ -71,8 +71,6 @@ cgate_gammar = Grammar(r"""
 
     trigger_group_address   = application_address "/" group_number
     action_selector         = ~"\d{1,3}" "%"?           # in the range 0-255, or 0-100 if "%" is used
-
-    zone_number     = application_address "/" group_number
 
     arm_type    = ~"\d{1,3}"
 
@@ -135,7 +133,7 @@ class CGateVisitor(NodeVisitor):
         r = command.SystemArmed(children[2], children[4])
         return r
 
-    def visit_zone_number(self, node, children):
+    def visit_group_address(self, node, children):
         return node.text
 
     def visit_arm_type(self, node, children):

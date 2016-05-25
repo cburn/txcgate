@@ -1,4 +1,8 @@
 class Command(object):
+    def __init__(self):
+        self.address = None
+        self.level = None
+
     def __str__(self):
         return "# noop"
 
@@ -26,10 +30,10 @@ class Trigger(Ramp):
 class ZoneSealed(Command):
     def __init__(self, address, sealed):
         self.address = address
-        self.sealed = sealed
+        self.level = sealed
 
     def __str__(self):
-        if self.sealed:
+        if self.level:
             return "# security zone_sealed {}".format(self.address)
         else:
             return "# security zone_unsealed {}".format(self.address)
@@ -37,7 +41,7 @@ class ZoneSealed(Command):
 class SystemArmed(Command):
     def __init__(self, address, type):
         self.address = address
-        self.type = type
+        self.level = type
 
     def __str__(self):
-        return "# security system_arm {} {}".format(self.address, self.type)
+        return "# security system_arm {} {}".format(self.address, self.level)
