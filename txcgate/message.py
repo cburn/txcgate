@@ -122,11 +122,11 @@ class CGateVisitor(NodeVisitor):
         return r
 
     def visit_ZONE_SEALED_EVENT(self, node, children):
-        r = command.ZoneSealed(children[2], True)
+        r = command.ZoneSealed(children[2], 255)
         return r
 
     def visit_ZONE_UNSEALED_EVENT(self, node, children):
-        r = command.ZoneSealed(children[2], False)
+        r = command.ZoneSealed(children[2], 0)
         return r
 
     def visit_SYSTEM_ARM_EVENT(self, node, children):
