@@ -11,7 +11,7 @@ ParseError = parsimonious.exceptions.ParseError
 LEVEL_MAX = 255
 
 cgate_gammar = Grammar(r"""
-    LINE                = (COMMAND / SECURITY_EVENT)? _? COMMENT?
+    LINE                = (COMMAND / SECURITY_EVENT / COMMENT)? _? COMMENT?
     COMMAND             = LIGHTING_CMD / SHORT_CMD / TRIGGER_EVENT
     SECURITY_EVENT      = "#" _ SECURITY _ SECURITY_SUB_EVENT
 
@@ -167,3 +167,6 @@ class CGateVisitor(NodeVisitor):
             return int(node.text[:-1]) * 60
         else:
             return int(node.text)
+
+    def visit_COMMENT(self, node, children):
+        return None

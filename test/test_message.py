@@ -62,7 +62,7 @@ class TestMessage(unittest.TestCase):
         cmd = message.CGateVisitor().parse(msg)
         self.assertIsInstance(cmd, command.ZoneSealed)
         self.assertEqual(cmd.address, '//HOME/254/208/2')
-        self.assertEqual(cmd.sealed, True)
+        self.assertEqual(cmd.level, 255)
         self.assertEqual(cmd.__str__(), '# security zone_sealed //HOME/254/208/2')
 
     def test_zone_unsealed(self):
@@ -70,7 +70,7 @@ class TestMessage(unittest.TestCase):
         cmd = message.CGateVisitor().parse(msg)
         self.assertIsInstance(cmd, command.ZoneSealed)
         self.assertEqual(cmd.address, '//HOME/254/208/2')
-        self.assertEqual(cmd.sealed, False)
+        self.assertEqual(cmd.level, 0)
         self.assertEqual(cmd.__str__(), '# security zone_unsealed //HOME/254/208/2')
 
     def test_security_armed(self):
@@ -78,16 +78,21 @@ class TestMessage(unittest.TestCase):
         cmd = message.CGateVisitor().parse(msg)
         self.assertIsInstance(cmd, command.SystemArmed)
         self.assertEqual(cmd.address, '//HOME/254/208')
-        self.assertEqual(cmd.type, 1)
+        self.assertEqual(cmd.level, 1)
         self.assertEqual(cmd.__str__(), '# security system_arm //HOME/254/208 1')
 
         msg = '# security system_arm //HOME/254/208 0 #sourceunit=20 OID=473ef100-b6d5-1033-a89d-bacdd30054cb'
         cmd = message.CGateVisitor().parse(msg)
         self.assertIsInstance(cmd, command.SystemArmed)
         self.assertEqual(cmd.address, '//HOME/254/208')
-        self.assertEqual(cmd.type, 0)
+        self.assertEqual(cmd.level, 0)
         self.assertEqual(cmd.__str__(), '# security system_arm //HOME/254/208 0')
 
     def test_bad_message(self):
         msg = 'a bad message'
         self.assertRaises(parsimonious.exceptions.ParseError, message.CGateVisitor().parse, msg)
+
+    def test_trigger_msg(self):
+        msg = "# trigger min //HOME/254/202/38  #sourceunit=20 OID=a8687e80-4ebd-1034-b24a-ce9c0f49f686"
+        cmd = message.CGateVisitor().parse(msg)
+        self.assertIsNone(cmd)
