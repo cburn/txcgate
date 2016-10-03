@@ -52,5 +52,6 @@ class CGateCommandProtocol(LineOnlyReceiver):
             self.factory._onMessage(data)
 
     def send(self, data):
-        command = self.visitor.parse(data)
-        self.sendLine(str(command))
+        # command = self.visitor.parse(data)
+        # self.sendLine(str(command))
+        self.sendLine(data)
