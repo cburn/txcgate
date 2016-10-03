@@ -50,13 +50,13 @@ class CGateCommandService(ClientService):
             self.protocol.send(message)
 
     def ramp(self, address, level):
-        self.send('RAMP //{address} {level}'.format(address=address, level=int(round(float(level)))))
+        self.send('RAMP {address} {level}'.format(address=address, level=int(round(float(level)))))
 
     def on(self, address):
-        self.send('ON //{address}'.format(address=address))
+        self.send('ON {address}'.format(address=address))
 
     def off(self, address):
-        self.send('OFF //{address}'.format(address=address))
+        self.send('OFF {address}'.format(address=address))
 
     def setMessageHandler(self, callback):
         self.__factory.setMessageHandler(callback)
@@ -98,7 +98,7 @@ class CGateService(MultiService):
         def pollLevels(protocol):
             self.__pollingLevel = True
             def stopPoll():
-                log.debug(self.__levels)
+                print self.__levels
                 self.__pollingLevel = False
             reactor.callLater(10, stopPoll)
             self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
