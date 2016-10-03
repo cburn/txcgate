@@ -89,6 +89,7 @@ class CGateService(MultiService):
         self.cs.setMessageHandler(handleStatusMessage)
 
         def handleCommandMessage(message):
+            print message
             if self.__pollingLevel: #300-//HOME/254/56/1: level=0
                 print message
                 level_match = level_re.match(message)
@@ -98,11 +99,13 @@ class CGateService(MultiService):
         self.cc.setMessageHandler(handleCommandMessage)
 
         def pollLevels(protocol):
+            print 'here'
             self.__pollingLevel = True
             def stopPoll():
                 print self.__levels
                 self.__pollingLevel = False
             reactor.callLater(10, stopPoll)
+            print 'sending GET {net}/56/* LEVEL'.format(net=self.network)
             self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
         self.cc.whenConnected().addCallback(pollLevels)
 
