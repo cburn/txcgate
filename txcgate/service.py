@@ -21,7 +21,7 @@ level_re = re.compile('300-([/\w]*):\W?level=(\d+)')
 class CGateStatusService(ClientService):
     def __init__(self, endpoint=STATUS_EP):
         self.__factory = CGateStatusFactory()
-        ClientService.__init__(self, endpoint, self._factory)
+        ClientService.__init__(self, endpoint, self.__factory)
 
     def setMessageHandler(self, callback):
         self.__factory.setMessageHandler(callback)
@@ -31,7 +31,7 @@ class CGateCommandService(ClientService):
         self.protocol = None
         self.__factory = CGateCommandFactory()
 
-        ClientService.__init__(self, endpoint, self._factory)
+        ClientService.__init__(self, endpoint, self.__factory)
 
     def startService(self):
         def retry():
