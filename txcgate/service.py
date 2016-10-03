@@ -14,6 +14,7 @@ log = Logger(namespace='txcgate')
 
 STATUS_EP = clientFromString(reactor, "tcp:localhost:20025")
 COMMAND_EP = clientFromString(reactor, "tcp:localhost:20023")
+DEFAULT_NETWORK = 254
 
 level_re = re.compile('300-([/\w]*):\W?level=(\d+)')
 
@@ -61,8 +62,10 @@ class CGateCommandService(ClientService):
         self.__factory.setMessageHandler(callback)
 
 class CGateService(MultiService):
-    def __init__(self, status_endpoint=STATUS_EP, command_endpoint=COMMAND_EP):
+    def __init__(self, status_endpoint=STATUS_EP, command_endpoint=COMMAND_EP, network=DEFAULT_NETWORK):
         MultiService.__init__(self)
+
+        self.network = network
 
         self.cs = CGateStatusService(status_endpoint)
         self.cs.setName('status_service')
@@ -76,21 +79,29 @@ class CGateService(MultiService):
         self.__onStatusMessage = None
         self.__pollingLevel = False
 
-        def __handleStatusMessage(message):
+        def handleStatusMessage(message):
             if isinstance(message, command.Command):
                 if message.level != None and message.address != None:
                     log.debug("Storing {address} as {level}".format(address=message.address, level=message.level))
                     self.__levels[message.address] = int(message.level)
             if self.__onStatusMessage:
                 self.__onStatusMessage(message)
-        self.cs.setMessageHandler(__handleStatusMessage)
+        self.cs.setMessageHandler(handleStatusMessage)
 
-        def __handleCommandMessage(message):
+        def handleCommandMessage(message):
             if self.__pollingLevel: #300-//HOME/254/56/1: level=0
                 level_match = level_re.match(message)
                 if level_match:
                     self.__levels[level_match.group(1)] = int(level_match.group(2))
-        self.cc.setMessageHandler(__handleCommandMessage)
+        self.cc.setMessageHandler(handleCommandMessage)
+
+        def pollLevels(protocol):
+            self.__pollingLevel = True
+            def stopPoll():
+                self.__pollingLevel = False
+            reactor.callLater(10, stopPoll)
+            self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
+        self.cc.whenConnected().addCallback(pollLevels)
 
     def setStatusMessageHandler(self, callback):
         self.__onStatusMessage = callback
@@ -107,11 +118,3 @@ class CGateService(MultiService):
 
     def off(self, address):
         self.cc.off(address)
-
-    def getLevel(self, address):
-        self.__pollingLevel = True
-        def stopPoll():
-            self.__pollingLevel = False
-        reactor.callLater(10, stopPoll)
-
-        self.cc.send('GET {address} LEVEL')
