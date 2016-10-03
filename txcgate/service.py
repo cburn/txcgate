@@ -6,26 +6,30 @@ from twisted.internet.protocol import Factory
 from twisted.internet.endpoints import clientFromString
 
 from protocol import CGateStatusFactory, CGateCommandProtocol
+import command
 
+import re
 
 log = Logger(namespace='txcgate')
 
 STATUS_EP = clientFromString(reactor, "tcp:localhost:20025")
 COMMAND_EP = clientFromString(reactor, "tcp:localhost:20023")
 
+level_re = re.compile('300-([/\w]*):\W?level=(\d+)')
 
 class CGateStatusService(ClientService):
     def __init__(self, endpoint=STATUS_EP):
-        self._factory = CGateStatusFactory()
+        self.__factory = CGateStatusFactory()
         ClientService.__init__(self, endpoint, self._factory)
 
     def setMessageHandler(self, callback):
-        self._factory.setMessageHandler(callback)
+        self.__factory.setMessageHandler(callback)
 
 class CGateCommandService(ClientService):
     def __init__(self, endpoint=COMMAND_EP):
         self.protocol = None
-        self._factory = Factory.forProtocol(CGateCommandProtocol)
+        self.__factory = CGateCommandFactory()
+
         ClientService.__init__(self, endpoint, self._factory)
 
     def startService(self):
@@ -44,6 +48,18 @@ class CGateCommandService(ClientService):
         if self.protocol:
             self.protocol.send(message)
 
+    def ramp(self, address, level):
+        self.send('RAMP //{address} {level}'.format(address=address, level=int(round(float(level)))))
+
+    def on(self, address):
+        self.send('ON //{address}'.format(address=address))
+
+    def off(self, address):
+        self.send('OFF //{address}'.format(address=address))
+
+    def setMessageHandler(self, callback):
+        self.__factory.setMessageHandler(callback)
+
 class CGateService(MultiService):
     def __init__(self, status_endpoint=STATUS_EP, command_endpoint=COMMAND_EP):
         MultiService.__init__(self)
@@ -56,8 +72,46 @@ class CGateService(MultiService):
         self.cc.setName('command_service')
         self.cc.setServiceParent(self)
 
-    def setMessageHandler(self, callback):
-        self.cs.setMessageHandler(callback)
+        self.__levels = {}
+        self.__onStatusMessage = None
+        self.__pollingLevel = False
+
+        def __handleStatusMessage(message):
+            if isinstance(message, command.Command):
+                if message.level != None and message.address != None:
+                    log.debug("Storing {address} as {level}".format(address=message.address, level=message.level))
+                    self.__levels[message.address] = int(message.level)
+            if self.__onStatusMessage:
+                self.__onStatusMessage(message)
+        self.cs.setMessageHandler(__handleStatusMessage)
+
+        def __handleCommandMessage(message):
+            if self.__pollingLevel: #300-//HOME/254/56/1: level=0
+                level_match = level_re.match(message)
+                if level_match:
+                    self.__levels[level_match.group(1)] = int(level_match.group(2))
+        self.cc.setMessageHandler(__handleCommandMessage)
+
+    def setStatusMessageHandler(self, callback):
+        self.__onStatusMessage = callback
 
     def send(self, message):
         self.cc.send(message)
+
+    def ramp(self, address, level):
+        self.cc.ramp(address, level)
+
+    def on(self, address, force=False):
+        if force or self.__levels.get(address, 0) == 0:
+            self.cc.on(address)
+
+    def off(self, address):
+        self.cc.off(address)
+
+    def getLevel(self, address):
+        self.__pollingLevel = True
+        def stopPoll():
+            self.__pollingLevel = False
+        reactor.callLater(10, stopPoll)
+
+        self.cc.send('GET {address} LEVEL')
