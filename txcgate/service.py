@@ -5,7 +5,7 @@ from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.internet.endpoints import clientFromString
 
-from protocol import CGateStatusFactory, CGateCommandProtocol
+from protocol import CGateStatusFactory, CGateCommandFactory
 import command
 
 import re
