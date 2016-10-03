@@ -103,8 +103,10 @@ class CGateService(MultiService):
             def stopPoll():
                 print self.__levels
                 self.__pollingLevel = False
-            reactor.callLater(10, stopPoll)
-            self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
+            reactor.callLater(20, stopPoll)
+            def poll():
+                self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
+            reactor.callLater(5, poll)
         self.cc.whenConnected().addCallback(pollLevels)
 
     def setStatusMessageHandler(self, callback):
