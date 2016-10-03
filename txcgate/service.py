@@ -89,19 +89,15 @@ class CGateService(MultiService):
         self.cs.setMessageHandler(handleStatusMessage)
 
         def handleCommandMessage(message):
-            print "--  " + message
             if self.__pollingLevel: #300-//HOME/254/56/1: level=0
-                print "----" + message
                 level_match = level_re.match(message)
                 if level_match:
-                    print level_match
                     self.__levels[level_match.group(1)] = int(level_match.group(2))
         self.cc.setMessageHandler(handleCommandMessage)
 
         def pollLevels(protocol):
             self.__pollingLevel = True
             def stopPoll():
-                print self.__levels
                 self.__pollingLevel = False
             reactor.callLater(20, stopPoll)
             def poll():
