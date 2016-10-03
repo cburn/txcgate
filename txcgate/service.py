@@ -98,6 +98,7 @@ class CGateService(MultiService):
         def pollLevels(protocol):
             self.__pollingLevel = True
             def stopPoll():
+                log.debug(self.__levels)
                 self.__pollingLevel = False
             reactor.callLater(10, stopPoll)
             self.cc.send('GET {net}/56/* LEVEL'.format(net=self.network))
