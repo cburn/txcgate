@@ -9,11 +9,11 @@ log = Logger(namespace='txcgate')
 
 class CGateStatusFactory(Factory):
     def __init__(self):
-        self.__onMessage = None
+        self._onMessage = None
         self.protocol = CGateStatusProtocol
 
     def setMessageHandler(self, callback):
-        self.__onMessage = callback
+        self._onMessage = callback
 
 class CGateStatusProtocol(LineOnlyReceiver):
     def __init__(self, ignore_parse_errors=True):
@@ -23,8 +23,8 @@ class CGateStatusProtocol(LineOnlyReceiver):
     def lineReceived(self, data):
         try:
             command = self.visitor.parse(data)
-            if self.factory.__onMessage:
-                self.factory.__onMessage(command)
+            if self.factory._onMessage:
+                self.factory._onMessage(command)
         except ParseError:
             if self.ignore_parse_errors: pass
             else: raise
@@ -34,11 +34,11 @@ class CGateStatusProtocol(LineOnlyReceiver):
 
 class CGateCommandFactory(Factory):
     def __init__(self):
-        self.__onMessage = None
+        self._onMessage = None
         self.protocol = CGateCommandProtocol
 
     def setMessageHandler(self, callback):
-        self.__onMessage = callback
+        self._onMessage = callback
 
 class CGateCommandProtocol(LineOnlyReceiver):
     def __init__(self, ignore_parse_errors=True):
@@ -48,8 +48,8 @@ class CGateCommandProtocol(LineOnlyReceiver):
         log.info('Connected to cgate command port : {remote}', remote=self.transport.getPeer())
 
     def lineReceived(self, data):
-        if self.factory.__onMessage:
-            self.factory.__onMessage(data)
+        if self.factory._onMessage:
+            self.factory._onMessage(data)
 
     def send(self, data):
         command = self.visitor.parse(data)
