@@ -16,7 +16,7 @@ STATUS_EP = clientFromString(reactor, "tcp:localhost:20025")
 COMMAND_EP = clientFromString(reactor, "tcp:localhost:20023")
 DEFAULT_NETWORK = 254
 
-level_re = re.compile('300-([/\w]*):\W?level=(\d+)')
+level_re = re.compile('300-([/\w]*):\W?LEVEL=(\d+)')
 
 class CGateStatusService(ClientService):
     def __init__(self, endpoint=STATUS_EP):
@@ -89,7 +89,7 @@ class CGateService(MultiService):
         self.cs.setMessageHandler(handleStatusMessage)
 
         def handleCommandMessage(message):
-            print message
+            print "--  " + message
             if self.__pollingLevel: #300-//HOME/254/56/1: level=0
                 print "----" + message
                 level_match = level_re.match(message)
