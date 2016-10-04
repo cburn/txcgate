@@ -9,6 +9,7 @@ log = Logger(namespace='txcgate')
 
 class CGateStatusFactory(Factory):
     def __init__(self):
+        self._onMessage = None
         self.protocol = CGateStatusProtocol
 
     def setMessageHandler(self, callback):
@@ -31,6 +32,14 @@ class CGateStatusProtocol(LineOnlyReceiver):
     def connectionMade(self):
         log.info('Connected to cgate status port  : {remote}', remote=self.transport.getPeer())
 
+class CGateCommandFactory(Factory):
+    def __init__(self):
+        self._onMessage = None
+        self.protocol = CGateCommandProtocol
+
+    def setMessageHandler(self, callback):
+        self._onMessage = callback
+
 class CGateCommandProtocol(LineOnlyReceiver):
     def __init__(self, ignore_parse_errors=True):
         self.visitor = CGateVisitor()
@@ -39,8 +48,10 @@ class CGateCommandProtocol(LineOnlyReceiver):
         log.info('Connected to cgate command port : {remote}', remote=self.transport.getPeer())
 
     def lineReceived(self, data):
-        pass
+        if self.factory._onMessage:
+            self.factory._onMessage(data)
 
     def send(self, data):
-        command = self.visitor.parse(data)
-        self.sendLine(str(command))
+        # command = self.visitor.parse(data)
+        # self.sendLine(str(command))
+        self.sendLine(data)
