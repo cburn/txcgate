@@ -52,6 +52,9 @@ class CGateCommandService(ClientService):
     def ramp(self, address, level):
         self.send('RAMP {address} {level}'.format(address=address, level=int(round(float(level)))))
 
+    def trigger_event(self, address, level):
+        self.send('TRIGGER EVENT {address} {level}'.format(address=address, level=int(round(float(level)))))
+
     def on(self, address):
         self.send('ON {address}'.format(address=address))
 
@@ -120,3 +123,6 @@ class CGateService(MultiService):
 
     def off(self, address):
         self.cc.off(address)
+
+    def trigger_event(self, address, level):
+        self.cc.trigger_event(address, level)
