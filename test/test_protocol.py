@@ -15,7 +15,7 @@ class TestProtocol(unittest.TestCase):
         self.proto.makeConnection(self.tr)
 
     def test_proto(self):
-        msg = 'lighting ramp //HOME/254/56/46 0 12 #sourceunit=6 OID=46ee8710-b6d5-1033-a7a8-bacdd30054cb'
+        msg = 'lighting ramp //HOME/254/56/46 0 12 #sourceunit=6 OID=00000000-0000-0000-0000-000000000000'
         self.proto.dataReceived(msg + '\r\n')
         self.assertIsInstance(self.proto.factory.cmd, command.Ramp)
         self.assertEqual(self.proto.cmd.address, '//HOME/254/56/46')
