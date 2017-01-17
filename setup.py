@@ -6,6 +6,6 @@ setup(name="txcgate",
       author_email='chrisburn@fastmail.net',
       platforms=["any"],
       packages=find_packages(),
-
+      license = "GPL-3.0",
       install_requires = ['parsimonious', 'Twisted'],
 )
