@@ -1,6 +1,7 @@
 from twisted.protocols.basic import LineOnlyReceiver
 from twisted.internet.protocol import Factory
 from twisted.logger import Logger
+from twisted.internet import reactor
 
 from .message import CGateVisitor, ParseError
 
@@ -50,7 +51,7 @@ class CGateCommandProtocol(LineOnlyReceiver):
 
     def connectionLost(self, reason):
         log.debug('Connection to cgate command port lost')
-        self.callLater(0.1, self.onDisconnection, reason)
+        reactor.callLater(0.1, self.onDisconnection, reason)
         LineOnlyReceiver.connectionLost(reason)
 
     def lineReceived(self, data):
