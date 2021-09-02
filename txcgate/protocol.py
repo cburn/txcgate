@@ -61,4 +61,4 @@ class CGateCommandProtocol(LineOnlyReceiver):
     def send(self, data):
         # command = self.visitor.parse(data)
         # self.sendLine(str(command))
-        self.sendLine(data)
+        self.sendLine(data.encode('ascii'))
