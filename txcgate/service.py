@@ -28,27 +28,26 @@ class CGateStatusService(ClientService):
 
 class CGateCommandService(ClientService):
     def __init__(self, endpoint=COMMAND_EP):
-#        self.protocol = None
+        self.protocol = None
         self.__factory = CGateCommandFactory()
 
         ClientService.__init__(self, endpoint, self.__factory)
 
-#    def startService(self):
-#        def retry():
-#            self.whenConnected().addCallback(clientConnect)
-#        def clientConnect(protocol):
-#            self.protocol = protocol
-#            self._lostDeferred.addCallback(clientDisconnect)
-#        def clientDisconnect(reason):
-#            self.protocol = None
-#            reactor.callLater(2, retry)
-#        ClientService.startService(self)
-#        retry()
+    def startService(self):
+        def retry():
+            self.whenConnected().addCallback(clientConnect)
+        def clientConnect(protocol):
+            self.protocol = protocol
+            self.protocol.onDisconnection = clientDisconnect
+        def clientDisconnect(reason):
+            self.protocol = None
+            reactor.callLater(2, retry)
+        ClientService.startService(self)
+        retry()
 
     def send(self, message):
-#        if self.protocol:
-#            self.protocol.send(message)
-        self.whenConnected().send(message)
+        if self.protocol:
+            self.protocol.send(message)
 
     def ramp(self, address, level):
         self.send('RAMP {address} {level}'.format(address=address, level=int(round(float(level)))))

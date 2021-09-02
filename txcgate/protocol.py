@@ -43,9 +43,15 @@ class CGateCommandFactory(Factory):
 class CGateCommandProtocol(LineOnlyReceiver):
     def __init__(self, ignore_parse_errors=True):
         self.visitor = CGateVisitor()
+        self.onDisconnection = None
 
     def connectionMade(self):
         log.info('Connected to cgate command port : {remote}', remote=self.transport.getPeer())
+
+    def connectionLost(self, reason):
+        log.debug('Connection to cgate command port lost')
+        self.callLater(0.1, self.onDisconnection, reason)
+        LineOnlyReceiver.connectionLost(reason)
 
     def lineReceived(self, data):
         if self.factory._onMessage:
