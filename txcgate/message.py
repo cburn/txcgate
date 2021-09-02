@@ -4,7 +4,7 @@ import math
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 import parsimonious.exceptions
-import command
+from . import command
 
 ParseError = parsimonious.exceptions.ParseError
 

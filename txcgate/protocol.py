@@ -2,7 +2,7 @@ from twisted.protocols.basic import LineOnlyReceiver
 from twisted.internet.protocol import Factory
 from twisted.logger import Logger
 
-from message import CGateVisitor, ParseError
+from .message import CGateVisitor, ParseError
 
 
 log = Logger(namespace='txcgate')
@@ -22,7 +22,7 @@ class CGateStatusProtocol(LineOnlyReceiver):
 
     def lineReceived(self, data):
         try:
-            command = self.visitor.parse(data)
+            command = self.visitor.parse(data.decode())
             if self.factory._onMessage:
                 self.factory._onMessage(command)
         except ParseError:
@@ -49,7 +49,7 @@ class CGateCommandProtocol(LineOnlyReceiver):
 
     def lineReceived(self, data):
         if self.factory._onMessage:
-            self.factory._onMessage(data)
+            self.factory._onMessage(data.decode())
 
     def send(self, data):
         # command = self.visitor.parse(data)
