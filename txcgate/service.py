@@ -5,8 +5,8 @@ from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.internet.endpoints import clientFromString
 
-from protocol import CGateStatusFactory, CGateCommandFactory
-import command
+from .protocol import CGateStatusFactory, CGateCommandFactory
+from . import command
 
 import re
 
@@ -38,7 +38,7 @@ class CGateCommandService(ClientService):
             self.whenConnected().addCallback(clientConnect)
         def clientConnect(protocol):
             self.protocol = protocol
-            self._lostDeferred.addCallback(clientDisconnect)
+            self.protocol.onDisconnection = clientDisconnect
         def clientDisconnect(reason):
             self.protocol = None
             reactor.callLater(2, retry)
