@@ -133,6 +133,14 @@ class CGateVisitor(NodeVisitor):
         r = command.SystemArmed(children[2], children[4])
         return r
 
+    def visit_EXIT_DELAY_STARTED_EVENT(self, node, children):
+        r = command.ExitDelay(children[2])
+        return r
+
+    def visit_ENTRY_DELAY_STARTED_EVENT(self, node, children):
+        r = command.EntryDelay(children[2])
+        return r
+
     def visit_group_address(self, node, children):
         return node.text
 

@@ -45,3 +45,17 @@ class SystemArmed(Command):
 
     def __str__(self):
         return "# security system_arm {} {}".format(self.address, self.level)
+
+class ExitDelay(Command):
+    def __init__(self, address):
+        self.address = address
+
+    def __str__(self):
+        return "# security exit_delay_started {}".format(self.address)
+
+class EntryDelay(Command):
+    def __init__(self, address):
+        self.address = address
+
+    def __str__(self):
+        return "# security entry_delay_started {}".format(self.address)
