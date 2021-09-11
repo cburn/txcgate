@@ -25,7 +25,7 @@ cgate_gammar = Grammar(r"""
     TRIGGER_EVENT       = TRIGGER _ EVENT _ trigger_group_address _ action_selector
 
     SECURITY_SUB_EVENT  = ZONE_SEALED_EVENT / ZONE_UNSEALED_EVENT / ARM_READY_EVENT / ARM_NOT_READY_EVENT
-        / EXIT_DELAY_STARTED_EVENT / ENTRY_DELAY_STARTED_EVENT / SYSTEM_ARM_EVENT
+        / EXIT_DELAY_STARTED_EVENT / ENTRY_DELAY_STARTED_EVENT / SYSTEM_ARM_EVENT / ALARM_ON_EVENT
 
     ZONE_SEALED_EVENT   = ZONE_SEALED _ group_address
     ZONE_UNSEALED_EVENT = ZONE_UNSEALED _ group_address
@@ -34,6 +34,7 @@ cgate_gammar = Grammar(r"""
     EXIT_DELAY_STARTED_EVENT    = EXIT_DELAY_STARTED _ application_address
     ENTRY_DELAY_STARTED_EVENT   = ENTRY_DELAY_STARTED _ application_address
     SYSTEM_ARM_EVENT    = SYSTEM_ARM _ application_address _ arm_type
+    ALARM_ON_EVENT      = ALARM_ON _ application_address
 
     LIGHTING        = ~"lighting"i
     RAMP            = ~"ramp"i
@@ -49,6 +50,7 @@ cgate_gammar = Grammar(r"""
     EXIT_DELAY_STARTED  = ~"exit_delay_started"i
     ENTRY_DELAY_STARTED = ~"entry_delay_started"i
     SYSTEM_ARM      = ~"system_arm"i
+    ALARM_ON        = ~"alarm_on"i
 
     object_identifier       = NAME / group_address / application_address / network_address / physical_address / project_address
     network_address         = (project_prefix / "/")? network_name
@@ -139,6 +141,10 @@ class CGateVisitor(NodeVisitor):
 
     def visit_ENTRY_DELAY_STARTED_EVENT(self, node, children):
         r = command.EntryDelay(children[2])
+        return r
+
+    def visit_ALARM_ON_EVENT(self, node, children):
+        r = command.AlarmOn(children[2])
         return r
 
     def visit_group_address(self, node, children):

@@ -61,3 +61,11 @@ class EntryDelay(Command):
 
     def __str__(self):
         return "# security entry_delay_started {}".format(self.address)
+
+class AlarmOn(Command):
+    def __init__(self, address):
+        self.address = address
+        self.level = None
+
+    def __str__(self):
+        return "# security alarm_on {}".format(self.address)
