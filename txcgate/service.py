@@ -49,8 +49,8 @@ class CGateCommandService(ClientService):
         if self.protocol:
             self.protocol.send(message)
 
-    def ramp(self, address, level):
-        self.send('RAMP {address} {level}'.format(address=address, level=int(round(float(level)))))
+    def ramp(self, address, level, time=0):
+        self.send('RAMP {address} {level} {time}'.format(address=address, level=int(round(float(level))), time=time))
 
     def trigger_event(self, address, level):
         self.send('TRIGGER EVENT {address} {level}'.format(address=address, level=int(round(float(level)))))
@@ -114,8 +114,8 @@ class CGateService(MultiService):
     def send(self, message):
         self.cc.send(message)
 
-    def ramp(self, address, level):
-        self.cc.ramp(address, level)
+    def ramp(self, address, level, time=0):
+        self.cc.ramp(address, level, time)
 
     def on(self, address, force=False):
         if force or self.__levels.get(address, 0) == 0:
